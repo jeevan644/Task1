@@ -1,0 +1,43 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
+
+df = pd.read_csv("C:\\Users\\JEEVAN KUMAR\\Downloads\\archive.zip")
+  # change this path as needed
+df.head()
+
+
+print(df.info())
+print(df.isnull().sum())
+
+
+df['Age'] = df['Age'].fillna(df['Age'].median())
+df['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])
+
+df = pd.get_dummies(df, columns=['Sex', 'Embarked'], drop_first=True)
+
+
+scaler = StandardScaler()
+df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
+
+
+plt.figure(figsize=(10, 5))
+sns.boxplot(data=df[['Age', 'Fare']])
+plt.title("Boxplot for Age and Fare")
+plt.show()
+
+def remove_outliers(col):
+    Q1 = df[col].quantile(0.25)
+    Q3 = df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    return df[(df[col] >= lower) & (df[col] <= upper)]
+
+df = remove_outliers('Fare')  # You can apply this to 'Age' as well if needed
+
+print(df.describe())
+print(df.head())
+
